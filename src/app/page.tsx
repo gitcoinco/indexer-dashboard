@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { BlockInfo } from '@/types';
 import { StatusCard } from '@/components/StatusCard';
 import { OverallStatus } from '@/components/OverallStatus';
-import { Sun, Moon, Link } from 'lucide-react';
+import { Sun, Moon, Link, Heart } from 'lucide-react';
 import { calculateSyncStatus } from '@/utils';
 import { chains, ENVIO_URL, INDEXER_URL, REFRESH_INTERVAL } from '@/config';
 
@@ -133,6 +133,13 @@ export default function Home() {
             );
           })}
         </div>
+        <footer className="mt-16 pb-8 text-center">
+          <div className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 px-6 py-3 rounded-full shadow-sm">
+            <span>Made with</span>
+            <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+            <span>by the team who survived GG23 indexer monitoring</span>
+          </div>
+        </footer>
       </div>
     </div>
   );
