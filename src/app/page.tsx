@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { BlockInfo } from '@/types';
 import { StatusCard } from '@/components/StatusCard';
 import { OverallStatus } from '@/components/OverallStatus';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Link } from 'lucide-react';
 import { calculateSyncStatus } from '@/utils';
-import { chains } from '@/config';
+import { chains, ENVIO_URL, INDEXER_URL, REFRESH_INTERVAL } from '@/config';
 
 export default function Home() {
   const [blockInfos, setBlockInfos] = useState<Record<string, BlockInfo>>({});
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(new Date().toLocaleTimeString());
   const [isDark, setIsDark] = useState(false);
 
   const toggleDarkMode = () => {
@@ -39,6 +40,7 @@ export default function Home() {
           throw new Error(data.error);
         }
         setBlockInfos(data);
+        setLastUpdated(new Date().toLocaleTimeString());
       } catch (error) {
         console.error('Error fetching block info:', error);
       } finally {
@@ -47,7 +49,7 @@ export default function Home() {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchData, REFRESH_INTERVAL);
     return () => clearInterval(interval);
   }, []);
 
@@ -78,7 +80,38 @@ export default function Home() {
           </div>
         </div>
 
-        <OverallStatus blockInfos={blockInfos} />
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Link className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Envio GraphQL:</span>
+            </div>
+            <a 
+              href={ENVIO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+            >
+              {ENVIO_URL}
+            </a>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Link className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Indexer GraphQL:</span>
+            </div>
+            <a 
+              href={INDEXER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+            >
+              {INDEXER_URL}
+            </a>
+          </div>
+        </div>
+
+        <OverallStatus blockInfos={blockInfos} lastUpdated={lastUpdated} />
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {chains.map(chain => {

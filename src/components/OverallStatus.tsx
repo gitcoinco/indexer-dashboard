@@ -2,12 +2,14 @@ import React from 'react';
 import { BlockInfo } from '../types';
 import { calculateSyncStatus } from '../utils';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
+import { REFRESH_INTERVAL } from '@/config';
 
 interface OverallStatusProps {
   blockInfos: Record<string, BlockInfo>;
+  lastUpdated: string;
 }
 
-export function OverallStatus({ blockInfos }: OverallStatusProps) {
+export function OverallStatus({ blockInfos, lastUpdated }: OverallStatusProps) {
   const statuses = Object.values(blockInfos).map(info => calculateSyncStatus(info));
   const totalSyncs = statuses.length * 3; // 3 sync types per chain
   const healthySyncs = statuses.reduce((acc, status) => {
@@ -35,8 +37,8 @@ export function OverallStatus({ blockInfos }: OverallStatusProps) {
         </div>
       </div>
       <div className="text-right">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Last updated</p>
-        <p className="text-sm font-medium dark:text-gray-300">{new Date().toLocaleTimeString()}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Updated every <strong className='text-white'>{REFRESH_INTERVAL / 1000} seconds</strong></p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Last updated <strong className='text-white'>{lastUpdated}</strong></p>
       </div>
     </div>
   );

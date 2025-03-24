@@ -3,12 +3,16 @@ import { request } from 'graphql-request';
 import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY } from '@/config';
 import { BlockInfo, EnvioResponse, IndexerResponse } from '@/types';
 
-if (ENVIO_URL == undefined || INDEXER_URL == undefined) {
-  throw new Error('Missing required environment variables: ENVIO_URL or INDEXER_URL');
-}
-
 export async function GET() {
   try {
+    if (!ENVIO_URL || !INDEXER_URL) {
+      console.error('Missing required environment variables:', {
+        ENVIO_URL: !!ENVIO_URL,
+        INDEXER_URL: !!INDEXER_URL
+      });
+      throw new Error('Missing required environment variables: ENVIO_URL or INDEXER_URL');
+    }
+
     console.log('Fetching data from:', { ENVIO_URL, INDEXER_URL });
 
     const [envioData, indexerData] = await Promise.all([
@@ -36,9 +40,12 @@ export async function GET() {
     }
 
     const envioBlocks = new Map(
-      envioData.data.chain_metadata.map(({ chain_id, latest_processed_block }) => [
+      envioData.data.chain_metadata.map(({ chain_id, latest_processed_block, num_events_processed }) => [
         chain_id.toString(),
-        parseInt(latest_processed_block, 10),
+        {
+          block: parseInt(latest_processed_block, 10),
+          events: parseInt(num_events_processed, 10)
+        }
       ])
     );
 
@@ -49,17 +56,23 @@ export async function GET() {
       ])
     );
 
+    console.log('Processed blocks:', {
+      envioBlocks: Object.fromEntries(envioBlocks),
+      indexerBlocks: Object.fromEntries(indexerBlocks),
+    });
+
     const blockInfos: Record<string, BlockInfo> = {};
     
     chains.forEach(chain => {
-      const envioBlock = envioBlocks.get(chain.id) ?? 0;
+      const envioData = envioBlocks.get(chain.id);
       const indexerBlock = indexerBlocks.get(chain.id) ?? 0;
       
       blockInfos[chain.id] = {
         chainId: chain.id,
-        rpcBlock: Math.max(envioBlock, indexerBlock) + Math.floor(Math.random() * 10) + 1,
-        envioBlock,
+        rpcBlock: Math.max(envioData?.block ?? 0, indexerBlock) + Math.floor(Math.random() * 10) + 1,
+        envioBlock: envioData?.block ?? 0,
         indexerBlock,
+        numEventsProcessed: envioData?.events,
         loading: false
       };
     });

@@ -1,4 +1,4 @@
-export const REFRESH_INTERVAL = 5000; // 5 seconds
+export const REFRESH_INTERVAL = 60 * 1000; // 60 seconds
 export const ALERT_THRESHOLD = Number(process.env.NEXT_PUBLIC_ALERT_THRESHOLD) || 15;
 
 export const ENVIO_URL = process.env.NEXT_PUBLIC_ENVIO_URL;
