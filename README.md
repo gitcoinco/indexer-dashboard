@@ -5,135 +5,158 @@ A real-time dashboard for monitoring blockchain indexer synchronization status a
 ## Features
 
 - Real-time monitoring of blockchain sync status
-- Support for multiple networks
-- Dark/light mode
-- Slack alerts for sync issues
+- Support for multiple networks (Ethereum, Polygon, Arbitrum, etc.)
+- Dark/light mode theme support
+- Event processing tracking
 - Auto-refresh every 30 seconds
+- Responsive design for all screen sizes
+- Detailed sync status visualization
+- RPC endpoint configuration via environment variables
 
-## Backend Architecture
+## Tech Stack
 
-The backend consists of two main components:
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- GraphQL (with graphql-request)
+- Lucide React for icons
 
-1. **API Routes** (`/api/blocks`):
-   - Fetches data from Envio and Indexer GraphQL endpoints
-   - Aggregates block numbers and sync status
-   - Provides unified data to the frontend
+## Quick Start
 
-2. **Monitoring Service** (`/api/monitor`):
-   - Runs periodic checks (every 5 minutes)
-   - Sends Slack alerts when sync issues are detected
-   - Configurable alert thresholds
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables (see Configuration section)
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-### How it Works
+## Configuration
 
-1. The backend fetches data from two GraphQL endpoints:
-   - Envio: Provides latest processed block numbers
-   - Indexer: Provides current indexed block numbers
-
-2. Data is compared to calculate sync percentages:
-   - Envio → RPC sync status
-   - Indexer → Envio sync status
-   - Indexer → RPC sync status
-
-3. Alert monitoring checks if any sync percentage falls below the threshold (default: 85%)
-
-## Setup Instructions
-
-### 1. Installation
-
-```bash
-npm install
-```
-
-### 2. Environment Variables
-
-Create a `.env` file with:
+Create a `.env` file in the root directory with the following variables:
 
 ```env
 # GraphQL Endpoints
-ENVIO_URL=https://your-envio-endpoint/graphql
-INDEXER_URL=https://your-indexer-endpoint/graphql
+NEXT_PUBLIC_ENVIO_URL=https://indexer.hyperindex.xyz/a5d76f2/v1/graphql
+NEXT_PUBLIC_INDEXER_URL=https://beta.indexer.gitcoin.co/v1/graphql
 
-# Slack Alerts (Optional)
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url
+# RPC URLs (customize as needed)
+NEXT_PUBLIC_ETH_RPC_URL=https://eth.llamarpc.com
+NEXT_PUBLIC_OPTIMISM_RPC_URL=https://mainnet.optimism.io
+# ... Add other chain RPC URLs as needed
 
 # Alert Configuration
-ALERT_THRESHOLD=15 # Percentage difference that triggers alerts
+NEXT_PUBLIC_ALERT_THRESHOLD=15 # Percentage difference that triggers alerts
 ```
 
-### 3. Running the Application
+## Architecture
 
-Development mode:
-```bash
-npm run dev
-```
+### Frontend Components
 
-Production:
-```bash
-npm run build
-npm start
-```
+- **StatusCard**: Displays individual chain status
+  - Block numbers (RPC, Envio, Indexer)
+  - Sync percentages
+  - Events processed
+  - RPC endpoint information
 
-## Adding New Networks
+- **OverallStatus**: Shows system-wide health status
+  - Aggregate sync status
+  - Quick view of all chains
+  - Last update timestamp
 
-1. Update the chain configuration in `src/config.ts`:
+### API Routes
+
+- **/api/blocks**: Fetches and aggregates blockchain data
+  - Combines data from Envio and Indexer
+  - Calculates sync percentages
+  - Provides unified response to frontend
+
+- **/api/monitor**: Handles monitoring and alerts
+  - Periodic health checks
+  - Sync status verification
+  - Alert triggering based on thresholds
+
+### Data Flow
+
+1. Frontend initiates request to `/api/blocks`
+2. API fetches data from:
+   - Envio GraphQL endpoint
+   - Indexer GraphQL endpoint
+3. Data is processed and sync status calculated
+4. Frontend updates UI with new data
+5. Process repeats every 30 seconds
+
+## Adding New Chains
+
+Add new chains to the `chainConfigs` object in `src/config.ts`:
 
 ```typescript
-const chainConfigs: Record<number, { name: string }> = {
-  // Existing networks...
-  
-  // Add new network
-  56: { name: 'BNB Chain' },
+export const chainConfigs = {
+  '1': { 
+    name: 'Ethereum',
+    rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC_URL || 'https://eth.llamarpc.com'
+  },
+  // Add new chain:
+  '56': { 
+    name: 'BNB Chain',
+    rpcUrl: process.env.NEXT_PUBLIC_BNB_RPC_URL || 'https://bsc-dataseed.binance.org'
+  }
 };
 ```
 
-2. Ensure the network is supported by your Envio and Indexer endpoints
+## Development
 
-3. The dashboard will automatically display the new network
+### Available Scripts
 
-## Slack Alerts Setup
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm start`: Run production server
+- `npm run lint`: Run ESLint
 
-1. Create a Slack App in your workspace
-   - Go to https://api.slack.com/apps
-   - Click "Create New App"
-   - Choose "From scratch"
-   - Select your workspace
+### Project Structure
 
-2. Add Incoming Webhooks
-   - Navigate to "Incoming Webhooks"
-   - Activate Incoming Webhooks
-   - Click "Add New Webhook to Workspace"
-   - Choose the channel for alerts
-
-3. Copy the Webhook URL and add it to your `.env`:
-   ```env
-   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url
-   ```
-
-4. Alerts will be sent when:
-   - Sync percentage drops below threshold
-   - Services become unavailable
-   - Network connectivity issues occur
-
-## Alert Format
-
-Slack alerts include:
-- Chain name
-- Current sync percentages
-- Specific sync issues detected
-- Timestamp
-
-Example:
 ```
-🚨 Alert: Sync issues detected for Ethereum
-Envio → RPC: 82.5%
-Indexer → Envio: 95.2%
-Indexer → RPC: 78.9%
+src/
+├── app/
+│   ├── api/
+│   │   ├── blocks/
+│   │   └── monitor/
+│   ├── page.tsx
+│   └── layout.tsx
+├── components/
+│   ├── StatusCard.tsx
+│   └── OverallStatus.tsx
+├── config.ts
+├── types.ts
+└── utils.ts
 ```
 
-## Development Notes
+## Monitoring and Alerts
 
-- The frontend updates every 30 seconds
-- Monitoring service runs every 5 minutes
-- Alert threshold is configurable via `ALERT_THRESHOLD`
-- Network errors are handled gracefully with fallback states
+The system monitors:
+- Block sync status
+- Event processing
+- Network health
+- RPC endpoint availability
+
+Alert thresholds:
+- Default: 15% difference triggers alerts
+- Configurable via `NEXT_PUBLIC_ALERT_THRESHOLD`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT License
+
+## Support
+
+For issues and feature requests, please open an issue on the repository.

@@ -3,7 +3,7 @@ import { request } from 'graphql-request';
 import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY } from '@/config';
 import { BlockInfo, EnvioResponse, IndexerResponse } from '@/types';
 
-if (!ENVIO_URL || !INDEXER_URL) {
+if (ENVIO_URL == undefined || INDEXER_URL == undefined) {
   throw new Error('Missing required environment variables: ENVIO_URL or INDEXER_URL');
 }
 
@@ -48,11 +48,6 @@ export async function GET() {
         parseInt(blockNumber, 10),
       ])
     );
-
-    console.log('Processed blocks:', {
-      envioBlocks: Object.fromEntries(envioBlocks),
-      indexerBlocks: Object.fromEntries(indexerBlocks),
-    });
 
     const blockInfos: Record<string, BlockInfo> = {};
     

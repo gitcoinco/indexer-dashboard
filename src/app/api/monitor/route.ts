@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { request } from 'graphql-request';
-import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY, ALERT_THRESHOLD } from '@/config';
+import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY, ALERT_THRESHOLD, SLACK_WEBHOOK_URL } from '@/config';
 import { BlockInfo, EnvioResponse, IndexerResponse } from '@/types';
 import { calculateSyncStatus } from '@/utils';
 
 async function sendSlackAlert(chainName: string, syncStatus: any) {
   try {
-    if (!process.env.SLACK_WEBHOOK_URL) return;
+    if (SLACK_WEBHOOK_URL == undefined) return;
     
-    await fetch(process.env.SLACK_WEBHOOK_URL, {
+    await fetch(SLACK_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

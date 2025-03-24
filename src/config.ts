@@ -3,6 +3,7 @@ export const ALERT_THRESHOLD = Number(process.env.NEXT_PUBLIC_ALERT_THRESHOLD) |
 
 export const ENVIO_URL = process.env.NEXT_PUBLIC_ENVIO_URL;
 export const INDEXER_URL = process.env.NEXT_PUBLIC_INDEXER_URL;
+export const SLACK_WEBHOOK_URL = process.env.VITE_SLACK_WEBHOOK_URL;
 
 export const ENVIO_QUERY = /* GraphQL */ `
   query latestBlock {
