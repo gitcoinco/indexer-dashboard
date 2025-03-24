@@ -27,6 +27,14 @@ async function sendSlackAlert(chainName: string, syncStatus: any) {
 
 export async function GET() {
   try {
+    if (!ENVIO_URL || !INDEXER_URL) {
+      console.error('Missing required environment variables:', {
+        ENVIO_URL: !!ENVIO_URL,
+        INDEXER_URL: !!INDEXER_URL
+      });
+      throw new Error('Missing required environment variables: ENVIO_URL or INDEXER_URL');
+    }
+
     const [envioData, indexerData] = await Promise.all([
       request<EnvioResponse>(ENVIO_URL, ENVIO_QUERY),
       request<IndexerResponse>(INDEXER_URL, INDEXER_QUERY)
@@ -52,9 +60,9 @@ export async function GET() {
       const chainId = chain.id;
       const blockInfo: BlockInfo = {
         chainId,
-        rpcBlock: (envioBlocks.get(chainId) || 0) + Math.floor(Math.random() * 100),
-        envioBlock: envioBlocks.get(chainId) || 0,
-        indexerBlock: indexerBlocks.get(chainId) || 0,
+        rpcBlock: (Number(envioBlocks.get(chainId)) || 0) + Math.floor(Math.random() * 100),
+        envioBlock: Number(envioBlocks.get(chainId)) || 0,
+        indexerBlock: Number(indexerBlocks.get(chainId)) || 0,
         loading: false
       };
 

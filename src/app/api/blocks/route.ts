@@ -40,7 +40,7 @@ export async function GET() {
     }
 
     const envioBlocks = new Map(
-      envioData.data.chain_metadata.map(({ chain_id, latest_processed_block, num_events_processed }) => [
+      envioData.data.chain_metadata.map(({ chain_id, latest_processed_block, num_events_processed }: { chain_id: string; latest_processed_block: string; num_events_processed: string }) => [
         chain_id.toString(),
         {
           block: parseInt(latest_processed_block, 10),
@@ -50,7 +50,7 @@ export async function GET() {
     );
 
     const indexerBlocks = new Map(
-      indexerData.data.eventsRegistry.map(({ chainId, blockNumber }) => [
+      indexerData.data.eventsRegistry.map(({ chainId, blockNumber }: { chainId: string; blockNumber: string }) => [
         chainId.toString(),
         parseInt(blockNumber, 10),
       ])
@@ -64,8 +64,8 @@ export async function GET() {
     const blockInfos: Record<string, BlockInfo> = {};
     
     chains.forEach(chain => {
-      const envioData = envioBlocks.get(chain.id);
-      const indexerBlock = indexerBlocks.get(chain.id) ?? 0;
+      const envioData = envioBlocks.get(chain.id) as any;
+      const indexerBlock = indexerBlocks.get(chain.id) ?? 0 as any;
       
       blockInfos[chain.id] = {
         chainId: chain.id,
