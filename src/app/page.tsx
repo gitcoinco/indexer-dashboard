@@ -204,12 +204,12 @@ export default function Home() {
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Envio Playground:</span>
             </div>
             <a 
-              href={getPlaygroundUrl(ENVIO_URL)}
+              href={getPlaygroundUrl(ENVIO_URL!)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
             >
-              {getPlaygroundUrl(ENVIO_URL)}
+              {getPlaygroundUrl(ENVIO_URL!)}
             </a>
           </div>
           <div className="space-y-2">
@@ -218,12 +218,12 @@ export default function Home() {
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Indexer Playground:</span>
             </div>
             <a 
-              href={getPlaygroundUrl(INDEXER_URL)}
+              href={getPlaygroundUrl(INDEXER_URL!)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
             >
-              {getPlaygroundUrl(INDEXER_URL)}
+              {getPlaygroundUrl(INDEXER_URL!)}
             </a>
           </div>
         </div>

@@ -87,15 +87,15 @@ export async function GET() {
     const blockInfos: Record<string, BlockInfo> = {};
     
     chains.forEach((chain, index) => {
-      const envioData = envioBlocks.get(chain.id);
-      const indexerBlock = indexerBlocks.get(chain.id) ?? 0;
+      const envioData = envioBlocks.get(chain.id) as { block: number; events: number };
+      const indexerBlock = indexerBlocks.get(chain.id) as number;
       const rpcBlock = rpcBlocks[index];
       
       blockInfos[chain.id] = {
         chainId: chain.id,
         rpcBlock: rpcBlock || 0,
         envioBlock: envioData?.block || 0,
-        indexerBlock,
+        indexerBlock: indexerBlock || 0,
         numEventsProcessed: envioData?.events,
         loading: false
       };
