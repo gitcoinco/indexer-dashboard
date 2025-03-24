@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { BlockInfo } from '@/types';
 import { StatusCard } from '@/components/StatusCard';
 import { OverallStatus } from '@/components/OverallStatus';
-import { Sun, Moon, Link, Heart, Search } from 'lucide-react';
+import { Sun, Moon, Link, Heart, Search, Clock } from 'lucide-react';
 import { calculateSyncStatus } from '@/utils';
-import { chains, ENVIO_URL, INDEXER_URL } from '@/config';
+import { chains, ENVIO_URL, INDEXER_URL, REFRESH_INTERVAL } from '@/config';
 
 export default function Home() {
   const [blockInfos, setBlockInfos] = useState<Record<string, BlockInfo>>({});
@@ -14,6 +14,7 @@ export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [filterText, setFilterText] = useState('');
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
+  const [refreshInterval, setRefreshInterval] = useState(REFRESH_INTERVAL);
 
   const toggleDarkMode = () => {
     setIsDark(!isDark);
@@ -50,9 +51,9 @@ export default function Home() {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchData, refreshInterval);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshInterval]);
 
   const hasIssues = (chainId: string) => {
     const blockInfo = blockInfos[chainId];
@@ -82,11 +83,9 @@ export default function Home() {
       const bHealthy = Object.values(bStatus).every(status => status >= 98);
       
       if (aHealthy === bHealthy) {
-        // If both are healthy or both are unhealthy, sort by name
         return a.name.localeCompare(b.name);
       }
       
-      // Put unhealthy chains first
       return aHealthy ? 1 : -1;
     });
 
@@ -104,6 +103,21 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blockchain Indexer Status</h1>
           <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
+              <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <select
+                value={refreshInterval}
+                onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                className="bg-transparent text-gray-700 dark:text-gray-300 text-sm focus:outline-none"
+              >
+                <option value={1000}>1s</option>
+                <option value={5000}>5s</option>
+                <option value={10000}>10s</option>
+                <option value={15000}>15s</option>
+                <option value={30000}>30s</option>
+                <option value={60000}>1m</option>
+              </select>
+            </div>
             <button 
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               onClick={toggleDarkMode}
@@ -148,7 +162,7 @@ export default function Home() {
           </div>
         </div>
 
-        <OverallStatus blockInfos={blockInfos} lastUpdated={lastUpdated} />
+        <OverallStatus blockInfos={blockInfos} lastUpdated={lastUpdated} refreshInterval={refreshInterval} />
 
         <div className="mt-8 mb-6">
           <div className="relative">
