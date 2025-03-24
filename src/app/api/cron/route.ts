@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import cron from 'node-cron';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Initialize cron job to run every 5 minutes
 cron.schedule('*/5 * * * *', async () => {
   try {

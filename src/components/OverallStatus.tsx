@@ -7,17 +7,18 @@ interface OverallStatusProps {
   blockInfos: Record<string, BlockInfo>;
   lastUpdated: string;
   refreshInterval: number;
+  threshold: number;
 }
 
-export function OverallStatus({ blockInfos, lastUpdated, refreshInterval }: OverallStatusProps) {
+export function OverallStatus({ blockInfos, lastUpdated, refreshInterval, threshold }: OverallStatusProps) {
   const statuses = Object.values(blockInfos).map(info => calculateSyncStatus(info));
   const totalSyncs = statuses.length * 3; // 3 sync types per chain
   const healthySyncs = statuses.reduce((acc, status) => {
-    return acc + Object.values(status).filter(sync => sync >= 98).length;
+    return acc + Object.values(status).filter(sync => sync >= (100 - threshold)).length;
   }, 0);
 
   const overallHealth = (healthySyncs / totalSyncs) * 100;
-  const isHealthy = overallHealth >= 98;
+  const isHealthy = overallHealth >= (100 - threshold);
 
   return (
     <div className={`p-6 rounded-lg ${isHealthy ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'} flex items-center justify-between shadow-sm`}>

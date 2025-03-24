@@ -1,9 +1,22 @@
-export const REFRESH_INTERVAL = 60 * 1000; // 60 seconds
+export const REFRESH_INTERVAL = 5000; // 5 seconds
 export const ALERT_THRESHOLD = Number(process.env.NEXT_PUBLIC_ALERT_THRESHOLD) || 15;
+
+// Log environment variables during initialization
+// console.log('Environment Variables:', {
+//   ENVIO_URL: process.env.NEXT_PUBLIC_ENVIO_URL,
+//   INDEXER_URL: process.env.NEXT_PUBLIC_INDEXER_URL,
+//   ALERT_THRESHOLD: process.env.NEXT_PUBLIC_ALERT_THRESHOLD
+// });
+
+if (!process.env.NEXT_PUBLIC_ENVIO_URL || !process.env.NEXT_PUBLIC_INDEXER_URL) {
+  console.error('Missing required environment variables:', {
+    ENVIO_URL: !!process.env.NEXT_PUBLIC_ENVIO_URL,
+    INDEXER_URL: !!process.env.NEXT_PUBLIC_INDEXER_URL
+  });
+}
 
 export const ENVIO_URL = process.env.NEXT_PUBLIC_ENVIO_URL;
 export const INDEXER_URL = process.env.NEXT_PUBLIC_INDEXER_URL;
-export const SLACK_WEBHOOK_URL = process.env.VITE_SLACK_WEBHOOK_URL;
 
 export const ENVIO_QUERY = /* GraphQL */ `
   query latestBlock {
@@ -24,75 +37,50 @@ export const INDEXER_QUERY = /* GraphQL */ `
   }
 `;
 
+// Client-side chain configuration (no RPC URLs)
 export const chainConfigs = {
-  '1': { 
-    name: 'Ethereum',
-    rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC_URL || 'https://eth.llamarpc.com'
-  },
-  '10': { 
-    name: 'Optimism',
-    rpcUrl: process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL || 'https://mainnet.optimism.io'
-  },
-  '42': { 
-    name: 'LUKSO',
-    rpcUrl: process.env.NEXT_PUBLIC_LUKSO_RPC_URL || 'https://rpc.lukso.gateway.fm'
-  },
-  '100': { 
-    name: 'Gnosis',
-    rpcUrl: process.env.NEXT_PUBLIC_GNOSIS_RPC_URL || 'https://rpc.gnosischain.com'
-  },
-  '137': { 
-    name: 'Polygon',
-    rpcUrl: process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://polygon-rpc.com'
-  },
-  '250': { 
-    name: 'Fantom',
-    rpcUrl: process.env.NEXT_PUBLIC_FANTOM_RPC_URL || 'https://rpc.ftm.tools'
-  },
-  '295': { 
-    name: 'Hedera',
-    rpcUrl: process.env.NEXT_PUBLIC_HEDERA_RPC_URL || 'https://mainnet.hashio.io/api'
-  },
-  '324': { 
-    name: 'zkSync Era',
-    rpcUrl: process.env.NEXT_PUBLIC_ZKSYNC_RPC_URL || 'https://mainnet.era.zksync.io'
-  },
-  '1088': { 
-    name: 'Metis',
-    rpcUrl: process.env.NEXT_PUBLIC_METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088'
-  },
-  '1329': { 
-    name: 'SEI',
-    rpcUrl: process.env.NEXT_PUBLIC_SEI_RPC_URL || 'https://sei-rpc.polkachu.com'
-  },
-  '8453': { 
-    name: 'Base',
-    rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org'
-  },
-  '11155111': { 
-    name: 'Sepolia',
-    rpcUrl: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || 'https://rpc.sepolia.org'
-  },
-  '42161': { 
-    name: 'Arbitrum',
-    rpcUrl: process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc'
-  },
-  '42220': { 
-    name: 'Celo',
-    rpcUrl: process.env.NEXT_PUBLIC_CELO_RPC_URL || 'https://forno.celo.org'
-  },
-  '43114': { 
-    name: 'Avalanche',
-    rpcUrl: process.env.NEXT_PUBLIC_AVALANCHE_RPC_URL || 'https://api.avax.network/ext/bc/C/rpc'
-  },
-  '534352': { 
-    name: 'Scroll',
-    rpcUrl: process.env.NEXT_PUBLIC_SCROLL_RPC_URL || 'https://rpc.scroll.io'
-  }
+  '1': { name: 'Ethereum' },
+  '10': { name: 'Optimism' },
+  '42': { name: 'LUKSO' },
+  '100': { name: 'Gnosis' },
+  '137': { name: 'Polygon' },
+  '250': { name: 'Fantom' },
+  '295': { name: 'Hedera' },
+  '324': { name: 'zkSync Era' },
+  '1088': { name: 'Metis' },
+  '1329': { name: 'SEI' },
+  '8453': { name: 'Base' },
+  '11155111': { name: 'Sepolia' },
+  '42161': { name: 'Arbitrum' },
+  '42220': { name: 'Celo' },
+  '43114': { name: 'Avalanche' },
+  '534352': { name: 'Scroll' }
 } as const;
+
+// Server-side RPC configuration
+export const getRpcUrl = (chainId: string): string => {
+  const rpcUrls: Record<string, string> = {
+    '1': process.env.ETH_RPC_URL || '',
+    '10': process.env.OPTIMISM_RPC_URL || '',
+    '42': process.env.LUKSO_RPC_URL || '',
+    '100': process.env.GNOSIS_RPC_URL || '',
+    '137': process.env.POLYGON_RPC_URL || '',
+    '250': process.env.FANTOM_RPC_URL || '',
+    '295': process.env.HEDERA_RPC_URL || '',
+    '324': process.env.ZKSYNC_RPC_URL || '',
+    '1088': process.env.METIS_RPC_URL || '',
+    '1329': process.env.SEI_RPC_URL || '',
+    '8453': process.env.BASE_RPC_URL || '',
+    '11155111': process.env.SEPOLIA_RPC_URL || '',
+    '42161': process.env.ARBITRUM_RPC_URL || '',
+    '42220': process.env.CELO_RPC_URL || '',
+    '43114': process.env.AVALANCHE_RPC_URL || '',
+    '534352': process.env.SCROLL_RPC_URL || ''
+  };
+  return rpcUrls[chainId] || '';
+};
 
 export const chains = Object.entries(chainConfigs).map(([id, config]) => ({
   id,
-  name: config.name,
-  rpcUrl: config.rpcUrl
+  name: config.name
 }));

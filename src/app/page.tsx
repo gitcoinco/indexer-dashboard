@@ -15,6 +15,7 @@ export default function Home() {
   const [filterText, setFilterText] = useState('');
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
   const [refreshInterval, setRefreshInterval] = useState(REFRESH_INTERVAL);
+  const [threshold, setThreshold] = useState(0.001);
 
   const toggleDarkMode = () => {
     setIsDark(!isDark);
@@ -59,7 +60,30 @@ export default function Home() {
     const blockInfo = blockInfos[chainId];
     if (!blockInfo) return false;
     const status = calculateSyncStatus(blockInfo);
-    return Object.values(status).some(value => value < 98);
+    return Object.values(status).some(value => value < (100 - threshold));
+  };
+
+  const getPlaygroundUrl = (indexerUrl: string) => {
+    const urlMappings = [
+      {
+        pattern: /^https:\/\/beta\.indexer\.gitcoin\.co\/v1\/graphql$/,
+        replacement: "https://beta.indexer.gitcoin.co/console/api/api-explorer"
+      },
+      {
+        pattern:
+          /^https:\/\/indexer\.hyperindex\.xyz\/([a-zA-Z0-9]+)\/v1\/graphql$/,
+        replacement:
+          "https://envio.dev/app/gitcoinco/gitcoin-indexer/$1/playground",
+      },
+    ];
+
+    for (const { pattern, replacement } of urlMappings) {
+      if (pattern.test(indexerUrl)) {
+        return indexerUrl.replace(pattern, replacement);
+      }
+    }
+
+    return indexerUrl;
   };
 
   const sortedAndFilteredChains = [...chains]
@@ -79,8 +103,8 @@ export default function Home() {
       const aStatus = calculateSyncStatus(aInfo);
       const bStatus = calculateSyncStatus(bInfo);
       
-      const aHealthy = Object.values(aStatus).every(status => status >= 98);
-      const bHealthy = Object.values(bStatus).every(status => status >= 98);
+      const aHealthy = Object.values(aStatus).every(status => status >= (100 - threshold));
+      const bHealthy = Object.values(bStatus).every(status => status >= (100 - threshold));
       
       if (aHealthy === bHealthy) {
         return a.name.localeCompare(b.name);
@@ -117,6 +141,20 @@ export default function Home() {
                 <option value={30000}>30s</option>
                 <option value={60000}>1m</option>
               </select>
+            </div>
+            <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Threshold:</span>
+              <input
+                type="number"
+                min="0.000001"
+                max="100"
+                step="0.000001"
+                value={threshold}
+                onChange={(e) => setThreshold(Number(e.target.value))}
+                className="w-20 bg-transparent text-gray-700 dark:text-gray-300 text-sm focus:outline-none"
+                title="Set the threshold percentage for sync status (e.g., 0.001 means 99.999% sync required for healthy status)"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">%</span>
             </div>
             <button 
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -160,9 +198,42 @@ export default function Home() {
               {INDEXER_URL}
             </a>
           </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Link className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Envio Playground:</span>
+            </div>
+            <a 
+              href={getPlaygroundUrl(ENVIO_URL)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+            >
+              {getPlaygroundUrl(ENVIO_URL)}
+            </a>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Link className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Indexer Playground:</span>
+            </div>
+            <a 
+              href={getPlaygroundUrl(INDEXER_URL)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+            >
+              {getPlaygroundUrl(INDEXER_URL)}
+            </a>
+          </div>
         </div>
 
-        <OverallStatus blockInfos={blockInfos} lastUpdated={lastUpdated} refreshInterval={refreshInterval} />
+        <OverallStatus 
+          blockInfos={blockInfos} 
+          lastUpdated={lastUpdated} 
+          refreshInterval={refreshInterval}
+          threshold={threshold}
+        />
 
         <div className="mt-8 mb-6">
           <div className="relative">
@@ -199,6 +270,7 @@ export default function Home() {
                 chain={chain}
                 blockInfo={blockInfo}
                 syncStatus={calculateSyncStatus(blockInfo)}
+                threshold={threshold}
               />
             );
           })}

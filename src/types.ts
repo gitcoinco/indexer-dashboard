@@ -1,7 +1,6 @@
 export interface Chain {
   id: string;
   name: string;
-  rpcUrl: string;
 }
 
 export interface BlockInfo {
@@ -20,21 +19,25 @@ export interface SyncStatus {
   indexerToRpc: number;
 }
 
+export interface ChainMetadata {
+  chain_id: string | number;
+  latest_processed_block: string;
+  num_events_processed: string;
+}
+
 export interface EnvioResponse {
   data: {
-    chain_metadata: Array<{
-      latest_processed_block: number;
-      chain_id: number | string;
-      num_events_processed: number;
-    }>;
+    chain_metadata: ChainMetadata[];
   };
+}
+
+export interface EventRegistry {
+  chainId: string;
+  blockNumber: string;
 }
 
 export interface IndexerResponse {
   data: {
-    eventsRegistry: Array<{
-      chainId: string;
-      blockNumber: number | string;
-    }>;
+    eventsRegistry: EventRegistry[];
   };
 }

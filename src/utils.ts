@@ -17,8 +17,8 @@ export function calculatePercentage(current: number, target: number): number {
   return (current / target) * 100;
 }
 
-export function getStatusColor(percentage: number): string {
-  if (percentage >= 98) return 'bg-green-500';
+export function getStatusColor(percentage: number, threshold: number): string {
+  if (percentage >= (100 - threshold)) return 'bg-green-500';
   if (percentage >= 90) return 'bg-yellow-500';
   return 'bg-red-500';
 }

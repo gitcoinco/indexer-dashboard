@@ -1,16 +1,17 @@
 import React from 'react';
 import { BlockInfo, Chain, SyncStatus } from '../types';
 import { getStatusColor, formatNumber, formatPercentage } from '../utils';
-import { AlertTriangle, CheckCircle, Link } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 interface StatusCardProps {
   chain: Chain;
   blockInfo: BlockInfo;
   syncStatus: SyncStatus;
+  threshold?: number;
 }
 
-export function StatusCard({ chain, blockInfo, syncStatus }: StatusCardProps) {
-  const isHealthy = Object.values(syncStatus).every(status => status >= 98);
+export function StatusCard({ chain, blockInfo, syncStatus, threshold = 0.001 }: StatusCardProps) {
+  const isHealthy = Object.values(syncStatus).every(status => status >= (100 - threshold));
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
@@ -24,11 +25,6 @@ export function StatusCard({ chain, blockInfo, syncStatus }: StatusCardProps) {
         ) : (
           <AlertTriangle className="w-6 h-6 text-red-500" />
         )}
-      </div>
-
-      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-2">
-        <Link className="w-4 h-4" />
-        <span className="truncate" title={chain.rpcUrl}>{chain.rpcUrl}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -53,24 +49,57 @@ export function StatusCard({ chain, blockInfo, syncStatus }: StatusCardProps) {
       )}
 
       <div className="space-y-3">
-        <SyncBar label="Envio → RPC" percentage={syncStatus.envioToRpc} />
-        <SyncBar label="Indexer → Envio" percentage={syncStatus.indexerToEnvio} />
-        <SyncBar label="Indexer → RPC" percentage={syncStatus.indexerToRpc} />
+        <SyncBar 
+          label="Envio Sync" 
+          tooltip="Envio's sync progress with the latest blockchain state"
+          percentage={syncStatus.envioToRpc}
+          threshold={threshold}
+        />
+        <SyncBar 
+          label="Event Processing" 
+          tooltip="Indexer's progress in processing Envio events"
+          percentage={syncStatus.indexerToEnvio}
+          threshold={threshold}
+        />
+        <SyncBar 
+          label="Overall Sync" 
+          tooltip="Indexer's overall sync status with the blockchain"
+          percentage={syncStatus.indexerToRpc}
+          threshold={threshold}
+        />
       </div>
     </div>
   );
 }
 
-function SyncBar({ label, percentage }: { label: string; percentage: number }) {
+interface SyncBarProps {
+  label: string;
+  tooltip: string;
+  percentage: number;
+  threshold: number;
+}
+
+function SyncBar({ label, tooltip, percentage, threshold }: SyncBarProps) {
+  const isHealthy = percentage >= (100 - threshold);
+
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
-        <span className="text-gray-600 dark:text-gray-400">{label}</span>
-        <span className="font-medium dark:text-white">{formatPercentage(percentage)}</span>
+        <div className="flex items-center space-x-1.5 group relative">
+          <span className="text-gray-600 dark:text-gray-400">{label}</span>
+          <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
+          <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 absolute left-0 -bottom-12 bg-gray-900 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded-lg w-56 z-10 shadow-lg">
+            {tooltip}
+            <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 dark:bg-gray-700 transform rotate-45" />
+          </div>
+        </div>
+        <span className={`font-medium ${isHealthy ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+          {formatPercentage(percentage)}
+        </span>
       </div>
       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
-          className={`h-full ${getStatusColor(percentage)} transition-all duration-300`}
+          className={`h-full ${getStatusColor(percentage, threshold)} transition-all duration-300`}
           style={{ width: `${percentage}%` }}
         />
       </div>
