@@ -65,7 +65,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blockchain Indexer Status</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gitcoin Indexer Status</h1>
           <div className="flex items-center space-x-4">
             <button 
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

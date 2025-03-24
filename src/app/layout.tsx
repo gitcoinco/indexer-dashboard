@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Blockchain Indexer Status',
-  description: 'Monitor blockchain indexer synchronization status',
+  title: 'Gitcoin Indexer Status',
+  description: 'Monitor Gitcoin Indexer synchronization status',
 }
 
 export default function RootLayout({

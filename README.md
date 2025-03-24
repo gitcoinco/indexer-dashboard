@@ -1,10 +1,10 @@
-# Blockchain Indexer Status Dashboard
+# Gitcoin Indexer Status Dashboard
 
-A real-time dashboard for monitoring blockchain indexer synchronization status across multiple networks. This application tracks and displays the sync status between RPC nodes, Envio indexer, and the main indexer.
+A real-time dashboard for monitoring gitcoin indexer synchronization status across multiple networks. This application tracks and displays the sync status between RPC nodes, Envio indexer, and the main indexer.
 
 ## Features
 
-- Real-time monitoring of blockchain sync status
+- Real-time monitoring of gitcoin indexer sync status
 - Support for multiple networks (Ethereum, Polygon, Arbitrum, etc.)
 - Dark/light mode theme support
 - Event processing tracking
