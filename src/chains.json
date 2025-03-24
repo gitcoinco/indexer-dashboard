@@ -1,0 +1,42 @@
+{
+  "ethereum": {
+    "id": "ethereum",
+    "name": "Ethereum",
+    "rpcUrl": "https://eth-mainnet.example.com",
+    "envioUrl": "https://envio-eth.example.com",
+    "indexerUrl": "https://indexer-eth.example.com",
+    "icon": "Coins"
+  },
+  "polygon": {
+    "id": "polygon",
+    "name": "Polygon",
+    "rpcUrl": "https://polygon-rpc.example.com",
+    "envioUrl": "https://envio-polygon.example.com",
+    "indexerUrl": "https://indexer-polygon.example.com",
+    "icon": "Hexagon"
+  },
+  "arbitrum": {
+    "id": "arbitrum",
+    "name": "Arbitrum",
+    "rpcUrl": "https://arb-mainnet.example.com",
+    "envioUrl": "https://envio-arb.example.com",
+    "indexerUrl": "https://indexer-arb.example.com",
+    "icon": "CircleDot"
+  },
+  "optimism": {
+    "id": "optimism",
+    "name": "Optimism",
+    "rpcUrl": "https://opt-mainnet.example.com",
+    "envioUrl": "https://envio-opt.example.com",
+    "indexerUrl": "https://indexer-opt.example.com",
+    "icon": "CircleEqual"
+  },
+  "base": {
+    "id": "base",
+    "name": "Base",
+    "rpcUrl": "https://base-mainnet.example.com",
+    "envioUrl": "https://envio-base.example.com",
+    "indexerUrl": "https://indexer-base.example.com",
+    "icon": "CircleDollarSign"
+  }
+}

@@ -10,7 +10,6 @@ import { Sun, Moon } from 'lucide-react';
 function App() {
   const [blockInfos, setBlockInfos] = useState<Record<string, BlockInfo>>({});
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -85,7 +84,6 @@ function App() {
 
       setBlockInfos(newBlockInfos);
       setLoading(false);
-      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching block info:', error);
       setLoading(false);
@@ -123,7 +121,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gitcoin Indexer Status</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blockchain Indexer Status</h1>
           <div className="flex items-center space-x-4">
             <button 
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -138,7 +136,7 @@ function App() {
           </div>
         </div>
 
-        <OverallStatus blockInfos={blockInfos} lastUpdated={lastUpdated} />
+        <OverallStatus blockInfos={blockInfos} />
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {chains.map(chain => {
