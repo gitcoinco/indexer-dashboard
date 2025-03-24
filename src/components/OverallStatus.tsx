@@ -5,9 +5,13 @@ import { CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface OverallStatusProps {
   blockInfos: Record<string, BlockInfo>;
+  lastUpdated: Date;
 }
 
-export function OverallStatus({ blockInfos }: OverallStatusProps) {
+export function OverallStatus({ blockInfos, lastUpdated }: OverallStatusProps) {
+
+  console.log("HIII");
+
   const statuses = Object.values(blockInfos).map(info => calculateSyncStatus(info));
   const totalSyncs = statuses.length * 3; // 3 sync types per chain
   const healthySyncs = statuses.reduce((acc, status) => {
@@ -36,7 +40,7 @@ export function OverallStatus({ blockInfos }: OverallStatusProps) {
       </div>
       <div className="text-right">
         <p className="text-sm text-gray-500 dark:text-gray-400">Last updated</p>
-        <p className="text-sm font-medium dark:text-gray-300">{new Date().toLocaleTimeString()}</p>
+        <p className="text-sm font-medium dark:text-gray-300">{lastUpdated.toLocaleTimeString()}</p>
       </div>
     </div>
   );

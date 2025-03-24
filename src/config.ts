@@ -25,20 +25,20 @@ export const INDEXER_QUERY = /* GraphQL */ `
 const chainConfigs: Record<number, { name: string }> = {
   1: { name: 'Ethereum' },
   10: { name: 'Optimism' },
-  42: { name: 'Optimism Goerli' },
+  42: { name: 'Lukso' },
   100: { name: 'Gnosis' },
   137: { name: 'Polygon' },
   250: { name: 'Fantom' },
   295: { name: 'Hedera' },
   324: { name: 'zkSync Era' },
   1088: { name: 'Metis' },
-  1329: { name: 'Horizen EON' },
+  1329: { name: 'Sei' },
   8453: { name: 'Base' },
-  11155111: { name: 'Sepolia' },
   42161: { name: 'Arbitrum' },
   42220: { name: 'Celo' },
   43114: { name: 'Avalanche' },
-  534352: { name: 'Scroll' }
+  534352: { name: 'Scroll' },
+  11155111: { name: 'Sepolia' },
 };
 
 export const chains = Object.entries(chainConfigs).map(([chainId, config]) => ({
