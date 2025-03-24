@@ -13,6 +13,10 @@ interface StatusCardProps {
 export function StatusCard({ chain, blockInfo, syncStatus, threshold = 0.001 }: StatusCardProps) {
   const isHealthy = Object.values(syncStatus).every(status => status >= (100 - threshold));
 
+  const getBlocksBehind = (current: number, target: number): number => {
+    return Math.max(0, target - current);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -54,18 +58,21 @@ export function StatusCard({ chain, blockInfo, syncStatus, threshold = 0.001 }: 
           tooltip="Envio's sync progress with the latest blockchain state"
           percentage={syncStatus.envioToRpc}
           threshold={threshold}
+          blocksBehind={getBlocksBehind(blockInfo.envioBlock, blockInfo.rpcBlock)}
         />
         <SyncBar 
           label="Event Processing" 
           tooltip="Indexer's progress in processing Envio events"
           percentage={syncStatus.indexerToEnvio}
           threshold={threshold}
+          blocksBehind={getBlocksBehind(blockInfo.indexerBlock, blockInfo.envioBlock)}
         />
         <SyncBar 
           label="Overall Sync" 
           tooltip="Indexer's overall sync status with the blockchain"
           percentage={syncStatus.indexerToRpc}
           threshold={threshold}
+          blocksBehind={getBlocksBehind(blockInfo.indexerBlock, blockInfo.rpcBlock)}
         />
       </div>
     </div>
@@ -77,9 +84,10 @@ interface SyncBarProps {
   tooltip: string;
   percentage: number;
   threshold: number;
+  blocksBehind: number;
 }
 
-function SyncBar({ label, tooltip, percentage, threshold }: SyncBarProps) {
+function SyncBar({ label, tooltip, percentage, threshold, blocksBehind }: SyncBarProps) {
   const isHealthy = percentage >= (100 - threshold);
 
   return (
@@ -93,9 +101,16 @@ function SyncBar({ label, tooltip, percentage, threshold }: SyncBarProps) {
             <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 dark:bg-gray-700 transform rotate-45" />
           </div>
         </div>
-        <span className={`font-medium ${isHealthy ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-          {formatPercentage(percentage)}
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className={`font-medium ${isHealthy ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            {formatPercentage(percentage)}
+          </span>
+          {blocksBehind > 0 && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              ({formatNumber(blocksBehind)} blocks behind)
+            </span>
+          )}
+        </div>
       </div>
       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
