@@ -12,6 +12,11 @@ interface StatusCardProps {
 export function StatusCard({ chain, blockInfo, syncStatus }: StatusCardProps) {
   const isHealthy = Object.values(syncStatus).every(status => status >= 98);
 
+  // Log RPC URL when component mounts
+  // React.useEffect(() => {
+  //   console.log(`[${chain.name}] RPC URL:`, chain.rpcUrl);
+  // }, [chain.name, chain.rpcUrl]);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
       <div className="flex items-center justify-between">
