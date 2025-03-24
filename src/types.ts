@@ -1,6 +1,7 @@
 export interface Chain {
   id: string;
   name: string;
+  rpcUrl: string;
 }
 
 export interface BlockInfo {
@@ -8,6 +9,7 @@ export interface BlockInfo {
   rpcBlock: number;
   envioBlock: number;
   indexerBlock: number;
+  numEventsProcessed?: number;
   loading: boolean;
   error?: string;
 }
@@ -22,7 +24,8 @@ export interface EnvioResponse {
   data: {
     chain_metadata: Array<{
       latest_processed_block: number;
-      chain_id: number;
+      chain_id: number | string;
+      num_events_processed: number;
     }>;
   };
 }
@@ -30,8 +33,8 @@ export interface EnvioResponse {
 export interface IndexerResponse {
   data: {
     eventsRegistry: Array<{
-      chainId: number;
-      blockNumber: number;
+      chainId: string;
+      blockNumber: number | string;
     }>;
   };
 }

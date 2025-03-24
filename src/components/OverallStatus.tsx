@@ -1,6 +1,4 @@
-'use client';
-
-import * as React from 'react';
+import React from 'react';
 import { BlockInfo } from '../types';
 import { calculateSyncStatus } from '../utils';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
@@ -9,7 +7,7 @@ interface OverallStatusProps {
   blockInfos: Record<string, BlockInfo>;
 }
 
-export function OverallStatus({ blockInfos }: OverallStatusProps): React.ReactElement {
+export function OverallStatus({ blockInfos }: OverallStatusProps) {
   const statuses = Object.values(blockInfos).map(info => calculateSyncStatus(info));
   const totalSyncs = statuses.length * 3; // 3 sync types per chain
   const healthySyncs = statuses.reduce((acc, status) => {
@@ -18,6 +16,7 @@ export function OverallStatus({ blockInfos }: OverallStatusProps): React.ReactEl
 
   const overallHealth = (healthySyncs / totalSyncs) * 100;
   const isHealthy = overallHealth >= 98;
+
   return (
     <div className={`p-6 rounded-lg ${isHealthy ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'} flex items-center justify-between shadow-sm`}>
       <div className="flex items-center space-x-4">

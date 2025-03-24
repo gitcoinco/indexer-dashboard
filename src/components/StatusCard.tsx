@@ -1,7 +1,7 @@
 import React from 'react';
 import { BlockInfo, Chain, SyncStatus } from '../types';
 import { getStatusColor, formatNumber, formatPercentage } from '../utils';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Link } from 'lucide-react';
 
 interface StatusCardProps {
   chain: Chain;
@@ -9,20 +9,31 @@ interface StatusCardProps {
   syncStatus: SyncStatus;
 }
 
-export function StatusCard({ chain: { name, id }, blockInfo, syncStatus }: StatusCardProps) {
+export function StatusCard({ chain, blockInfo, syncStatus }: StatusCardProps) {
   const isHealthy = Object.values(syncStatus).every(status => status >= 98);
+
+  // Log RPC URL when component mounts
+  React.useEffect(() => {
+    console.log(`[${chain.name}] RPC URL:`, chain.rpcUrl);
+  }, [chain.name, chain.rpcUrl]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <h3 className="text-xl font-semibold dark:text-white">{name} (#{id})</h3>
+          <h3 className="text-xl font-semibold dark:text-white">{chain.name}</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">#{chain.id}</span>
         </div>
         {isHealthy ? (
           <CheckCircle className="w-6 h-6 text-green-500" />
         ) : (
           <AlertTriangle className="w-6 h-6 text-red-500" />
         )}
+      </div>
+
+      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-2">
+        <Link className="w-4 h-4" />
+        <span className="truncate" title={chain.rpcUrl}>{chain.rpcUrl}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -39,6 +50,12 @@ export function StatusCard({ chain: { name, id }, blockInfo, syncStatus }: Statu
           <p className="text-lg font-semibold dark:text-white">{formatNumber(blockInfo.indexerBlock)}</p>
         </div>
       </div>
+
+      {blockInfo.numEventsProcessed !== undefined && (
+        <div className="text-sm text-gray-600 dark:text-gray-300">
+          Events Processed: {formatNumber(blockInfo.numEventsProcessed)}
+        </div>
+      )}
 
       <div className="space-y-3">
         <SyncBar label="Envio → RPC" percentage={syncStatus.envioToRpc} />
