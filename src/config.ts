@@ -1,22 +1,24 @@
 export const REFRESH_INTERVAL = 5000; // 5 seconds
 export const ALERT_THRESHOLD = Number(process.env.NEXT_PUBLIC_ALERT_THRESHOLD) || 15;
 
-// Log environment variables during initialization
-// console.log('Environment Variables:', {
-//   ENVIO_URL: process.env.NEXT_PUBLIC_ENVIO_URL,
-//   INDEXER_URL: process.env.NEXT_PUBLIC_INDEXER_URL,
-//   ALERT_THRESHOLD: process.env.NEXT_PUBLIC_ALERT_THRESHOLD
-// });
+// Get URLs from URL parameters if available, otherwise use environment variables
+export const getEndpointUrls = () => {
+  if (typeof window === 'undefined') {
+    // Server-side
+    return {
+      ENVIO_URL: process.env.NEXT_PUBLIC_ENVIO_URL,
+      INDEXER_URL: process.env.NEXT_PUBLIC_INDEXER_URL
+    };
+  }
 
-if (!process.env.NEXT_PUBLIC_ENVIO_URL || !process.env.NEXT_PUBLIC_INDEXER_URL) {
-  console.error('Missing required environment variables:', {
-    ENVIO_URL: !!process.env.NEXT_PUBLIC_ENVIO_URL,
-    INDEXER_URL: !!process.env.NEXT_PUBLIC_INDEXER_URL
-  });
-}
+  // Client-side
+  const params = new URLSearchParams(window.location.search);
 
-export const ENVIO_URL = process.env.NEXT_PUBLIC_ENVIO_URL;
-export const INDEXER_URL = process.env.NEXT_PUBLIC_INDEXER_URL;
+  return {
+    ENVIO_URL: params.get('envio_url') || process.env.NEXT_PUBLIC_ENVIO_URL,
+    INDEXER_URL: params.get('indexer_url') || process.env.NEXT_PUBLIC_INDEXER_URL
+  };
+};
 
 export const ENVIO_QUERY = /* GraphQL */ `
   query latestBlock {

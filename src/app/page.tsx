@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { BlockInfo } from '@/types';
 import { StatusCard } from '@/components/StatusCard';
 import { OverallStatus } from '@/components/OverallStatus';
-import { Sun, Moon, Link, Heart, Search, Clock } from 'lucide-react';
+import { Sun, Moon, Link, Heart, Search, Clock, Share2, Save } from 'lucide-react';
 import { calculateSyncStatus } from '@/utils';
-import { chains, ENVIO_URL, INDEXER_URL, REFRESH_INTERVAL } from '@/config';
+import { chains, REFRESH_INTERVAL, getEndpointUrls } from '@/config';
 
 export default function Home() {
   const [blockInfos, setBlockInfos] = useState<Record<string, BlockInfo>>({});
@@ -16,11 +16,38 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
   const [refreshInterval, setRefreshInterval] = useState(REFRESH_INTERVAL);
   const [threshold, setThreshold] = useState(0.001);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showUrlInputs, setShowUrlInputs] = useState(false);
+  const [customEnvioUrl, setCustomEnvioUrl] = useState('');
+  const [customIndexerUrl, setCustomIndexerUrl] = useState('');
+  const { ENVIO_URL, INDEXER_URL } = getEndpointUrls();
+
+  useEffect(() => {
+    setCustomEnvioUrl(ENVIO_URL || '');
+    setCustomIndexerUrl(INDEXER_URL || '');
+  }, [ENVIO_URL, INDEXER_URL]);
 
   const toggleDarkMode = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('darkMode', (!isDark).toString());
+  };
+
+  const copyShareLink = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('envio_url', ENVIO_URL || '');
+    url.searchParams.set('indexer_url', INDEXER_URL || '');
+    navigator.clipboard.writeText(url.toString());
+    setShowShareModal(true);
+    setTimeout(() => setShowShareModal(false), 2000);
+  };
+
+  const updateUrls = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('envio_url', customEnvioUrl);
+    url.searchParams.set('indexer_url', customIndexerUrl);
+    window.history.pushState({}, '', url.toString());
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -34,7 +61,8 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/blocks');
+        const { ENVIO_URL, INDEXER_URL } = getEndpointUrls();
+        const response = await fetch(`/api/blocks?envio_url=${ENVIO_URL}&indexer_url=${INDEXER_URL}`);
         if (!response.ok) {
           throw new Error('Failed to fetch block info');
         }
@@ -127,6 +155,20 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blockchain Indexer Status</h1>
           <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowUrlInputs(!showUrlInputs)}
+              className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Link className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Edit URLs</span>
+            </button>
+            <button
+              onClick={copyShareLink}
+              className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Share2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Share</span>
+            </button>
             <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
               <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <select
@@ -169,6 +211,54 @@ export default function Home() {
           </div>
         </div>
 
+        {showUrlInputs && (
+          <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm space-y-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Envio GraphQL URL
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={customEnvioUrl}
+                  onChange={(e) => setCustomEnvioUrl(e.target.value)}
+                  placeholder="Enter Envio GraphQL URL"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                           placeholder-gray-500 dark:placeholder-gray-400
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Indexer GraphQL URL
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={customIndexerUrl}
+                  onChange={(e) => setCustomIndexerUrl(e.target.value)}
+                  placeholder="Enter Indexer GraphQL URL"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                           placeholder-gray-500 dark:placeholder-gray-400
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={updateUrls}
+                className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <Save className="w-4 h-4" />
+                <span>Update URLs</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -204,12 +294,12 @@ export default function Home() {
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Envio Playground:</span>
             </div>
             <a 
-              href={getPlaygroundUrl(ENVIO_URL!)}
+              href={getPlaygroundUrl(ENVIO_URL || '')}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
             >
-              {getPlaygroundUrl(ENVIO_URL!)}
+              {getPlaygroundUrl(ENVIO_URL || '')}
             </a>
           </div>
           <div className="space-y-2">
@@ -218,12 +308,12 @@ export default function Home() {
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Indexer Playground:</span>
             </div>
             <a 
-              href={getPlaygroundUrl(INDEXER_URL!)}
+              href={getPlaygroundUrl(INDEXER_URL || '')}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
             >
-              {getPlaygroundUrl(INDEXER_URL!)}
+              {getPlaygroundUrl(INDEXER_URL || '')}
             </a>
           </div>
         </div>
@@ -279,6 +369,12 @@ export default function Home() {
         {sortedAndFilteredChains.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">No chains found matching your filter.</p>
+          </div>
+        )}
+
+        {showShareModal && (
+          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
+            Share link copied to clipboard!
           </div>
         )}
 

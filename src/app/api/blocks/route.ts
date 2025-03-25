@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
 import { request } from 'graphql-request';
-import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY, getRpcUrl } from '@/config';
+import { chains, ENVIO_QUERY, INDEXER_QUERY, getRpcUrl, getEndpointUrls } from '@/config';
 import { BlockInfo, EnvioResponse, IndexerResponse } from '@/types';
 import { createPublicClient, http } from 'viem';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
-  try {
+export async function GET(req: Request) {
+  try { 
+    const url = new URL(req.url);
+
+    const ENVIO_URL= url.searchParams.get('envio_url');
+    const INDEXER_URL= url.searchParams.get('indexer_url');
+    
     if (!ENVIO_URL || !INDEXER_URL) {
       console.error('Missing required environment variables:', {
         ENVIO_URL: !!ENVIO_URL,
@@ -95,7 +100,7 @@ export async function GET() {
         chainId: chain.id,
         rpcBlock: rpcBlock || 0,
         envioBlock: envioData?.block || 0,
-        indexerBlock: indexerBlock || 0,
+        indexerBlock,
         numEventsProcessed: envioData?.events,
         loading: false
       };
