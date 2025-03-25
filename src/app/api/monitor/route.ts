@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { chains, ENVIO_URL, INDEXER_URL, ENVIO_QUERY, INDEXER_QUERY, ALERT_THRESHOLD, getRpcUrl } from '@/config';
+import { chains, ENVIO_QUERY, INDEXER_QUERY, ALERT_THRESHOLD, getRpcUrl } from '@/config';
 import { BlockInfo, EnvioResponse, IndexerResponse } from '@/types';
 import { calculateSyncStatus } from '@/utils';
 import { createPublicClient, http } from 'viem';
@@ -56,6 +56,9 @@ async function getLatestBlock(chainId: string) {
 
 export async function GET() {
   try {
+    const ENVIO_URL = process.env.NEXT_PUBLIC_ENVIO_URL;
+    const INDEXER_URL = process.env.NEXT_PUBLIC_INDEXER_URL;
+
     if (!ENVIO_URL || !INDEXER_URL) {
       throw new Error('Missing required environment variables: ENVIO_URL or INDEXER_URL');
     }
