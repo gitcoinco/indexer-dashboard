@@ -10,9 +10,8 @@ export const revalidate = 0;
 export async function GET(req: Request) {
   try { 
     const url = new URL(req.url);
-
-    const ENVIO_URL= url.searchParams.get('envio_url');
-    const INDEXER_URL= url.searchParams.get('indexer_url');
+    const ENVIO_URL = url.searchParams.get('envio_url');
+    const INDEXER_URL = url.searchParams.get('indexer_url');
     
     if (!ENVIO_URL || !INDEXER_URL) {
       console.error('Missing required environment variables:', {

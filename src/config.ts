@@ -13,7 +13,6 @@ export const getEndpointUrls = () => {
 
   // Client-side
   const params = new URLSearchParams(window.location.search);
-
   return {
     ENVIO_URL: params.get('envio_url') || process.env.NEXT_PUBLIC_ENVIO_URL,
     INDEXER_URL: params.get('indexer_url') || process.env.NEXT_PUBLIC_INDEXER_URL

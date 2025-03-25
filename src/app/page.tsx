@@ -62,7 +62,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const { ENVIO_URL, INDEXER_URL } = getEndpointUrls();
-        const response = await fetch(`/api/blocks?envio_url=${ENVIO_URL}&indexer_url=${INDEXER_URL}`);
+        const response = await fetch(`/api/blocks?envio_url=${encodeURIComponent(ENVIO_URL || '')}&indexer_url=${encodeURIComponent(INDEXER_URL || '')}`);
         if (!response.ok) {
           throw new Error('Failed to fetch block info');
         }
